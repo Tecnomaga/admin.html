@@ -4,224 +4,343 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin – Poke Fish</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold: #FFD966;
-            --bg-dark: #1a0f08;
-            --panel-bg: #2c1f14;
+            --gold-dark: #3A2E1C;
+            --bg: #1a0f08;
+            --panel: #2c1f14;
             --border: #5C3E2C;
         }
         * { margin: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #111;
+            background: #0d0d0d;
             color: #eee;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
-        h1 { color: var(--gold); text-align: center; margin-bottom: 30px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .login-box, .panel {
-            background: var(--panel-bg);
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+        .hidden { display: none !important; }
+
+        /* Login */
+        .login-card {
+            background: var(--panel);
             border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
-        .login-box h2 { margin-bottom: 20px; }
-        input, button {
-            width: 100%; padding: 12px; margin: 8px 0;
-            border-radius: 6px; border: 1px solid var(--border);
-            background: #2a1f14; color: #eee; font-size: 14px;
+        .login-card h2 {
+            color: var(--gold);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 18px;
+            margin-bottom: 20px;
         }
-        button {
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #2a1f14;
+            color: #eee;
+            font-size: 14px;
+        }
+        .login-card button {
             background: var(--gold);
             color: #1a0f08;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            border: none;
+            margin-top: 15px;
+            width: 100%;
+            transition: 0.2s;
         }
-        button:hover { opacity: 0.9; }
-        .hidden { display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #3a2e1c; color: var(--gold); padding: 8px; text-align: left; }
-        td { padding: 8px; border-bottom: 1px solid #444; }
-        .actions button { width: auto; padding: 6px 14px; margin: 0 4px; }
-        .copy-btn {
-            background: none;
+        .login-card button:hover { opacity: 0.85; }
+        .msg { color: #ff6b6b; margin-top: 10px; font-size: 13px; }
+
+        /* Painel */
+        .panel {
+            background: var(--panel);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(255, 215, 100, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--gold);
+            font-size: 16px;
+        }
+        .logout-btn {
+            background: transparent;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #ff6b6b; color: #000; }
+
+        /* Abas */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #2a1f14;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            color: #ccc;
+            font-weight: bold;
+        }
+        .tab.active {
+            background: var(--gold);
+            color: #1a0f08;
+            border-color: var(--gold);
+        }
+
+        /* Cards */
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .tx-card {
+            background: #1f140e;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: 0.2s;
+        }
+        .tx-card:hover { border-color: var(--gold); }
+        .tx-info p { margin: 4px 0; font-size: 14px; }
+        .tx-info strong { color: var(--gold); }
+        .detail-btn {
+            background: transparent;
             border: 1px solid var(--gold);
             color: var(--gold);
-            padding: 4px 10px;
-            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 6px;
             cursor: pointer;
-            border-radius: 4px;
-            margin-left: 5px;
         }
-        .copy-btn:hover { background: var(--gold); color: #000; }
-        .msg { color: #ff6b6b; margin-top: 8px; }
-        .logout { text-align: right; margin-bottom: 10px; }
-        .logout a { color: #ff6b6b; cursor: pointer; text-decoration: underline; }
+        .detail-btn:hover { background: var(--gold); color: #000; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .modal {
+            background: var(--panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .modal h3 {
+            color: var(--gold);
+            margin-bottom: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+        }
+        .modal p { margin: 8px 0; }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .approve, .reject {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .approve { background: #4CAF50; color: white; }
+        .reject { background: #e74c3c; color: white; }
+        .close-modal {
+            position: absolute;
+            top: 10px; right: 15px;
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎣 Poke Fish – Painel Admin</h1>
-
-        <!-- Tela de login -->
-        <div id="loginScreen" class="login-box">
-            <h2>Login Administrativo</h2>
-            <input type="text" id="loginUser" placeholder="Usuário">
-            <input type="password" id="loginPass" placeholder="Senha">
+        <!-- Login -->
+        <div id="loginScreen" class="login-card">
+            <h2>Painel Admin</h2>
+            <input id="adminUser" placeholder="Usuário">
+            <input id="adminPass" type="password" placeholder="Senha">
             <button onclick="doLogin()">Entrar</button>
             <div id="loginMsg" class="msg"></div>
         </div>
 
-        <!-- Painel (inicialmente oculto) -->
+        <!-- Painel -->
         <div id="adminPanel" class="panel hidden">
-            <div class="logout"><a onclick="logout()">Sair</a></div>
-            <h2>Transações Pendentes</h2>
-            <button onclick="loadTransactions()">Atualizar</button>
-            <table id="txTable">
-                <thead>
-                    <tr>
-                        <th>Usuário</th>
-                        <th>Tipo</th>
-                        <th>Detalhes</th>
-                        <th>Valor</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <div id="panelMsg" class="msg"></div>
+            <div class="header">
+                <h1>🎣 Poke Fish</h1>
+                <button class="logout-btn" onclick="logout()">Sair</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('deposit')">Depósitos</div>
+                <div class="tab" onclick="switchTab('withdraw')">Saques</div>
+            </div>
+
+            <div id="depositList" class="transactions-list"></div>
+            <div id="withdrawList" class="transactions-list hidden"></div>
+            <div id="panelMsg" class="msg" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- Modal genérico -->
+    <div id="txModal" class="modal-overlay hidden">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">✖</button>
+            <h3 id="modalTitle"></h3>
+            <div id="modalContent"></div>
+            <div class="modal-actions">
+                <button class="reject" onclick="processTx('rejected')">❌ Rejeitar</button>
+                <button class="approve" onclick="processTx('approved')">✅ Aprovar</button>
+            </div>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://pokefish-backend-production.up.railway.app/api';
-        let token = '';
+        let token = '', currentTab = 'deposit', allTx = [], selectedTx = null;
 
         async function doLogin() {
-            const username = document.getElementById('loginUser').value.trim();
-            const password = document.getElementById('loginPass').value.trim();
+            const u = document.getElementById('adminUser').value.trim();
+            const p = document.getElementById('adminPass').value.trim();
             const msg = document.getElementById('loginMsg');
-            if (!username || !password) {
-                msg.textContent = 'Preencha todos os campos.';
-                return;
-            }
+            if (!u || !p) return msg.textContent = 'Preencha os campos.';
             try {
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username: u, password: p })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || 'Erro no login');
-
-                // Verifica se é admin (pelo payload do token)
+                if (!res.ok) throw new Error(data.message || 'Erro');
                 const payload = JSON.parse(atob(data.token.split('.')[1]));
-                if (payload.role !== 'admin') {
-                    throw new Error('Acesso negado. Apenas administradores.');
-                }
+                if (payload.role !== 'admin') throw new Error('Apenas admins.');
                 token = data.token;
                 localStorage.setItem('admin_token', token);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
                 loadTransactions();
-            } catch (err) {
-                msg.textContent = err.message;
-            }
+            } catch (e) { msg.textContent = e.message; }
         }
 
         async function loadTransactions() {
-            const msg = document.getElementById('panelMsg');
-            msg.textContent = '';
             try {
                 const res = await fetch(`${API_URL}/admin/transactions`, {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
-                if (res.status === 401 || res.status === 403) {
-                    logout();
-                    return;
-                }
-                const transactions = await res.json();
-                const tbody = document.querySelector('#txTable tbody');
-                tbody.innerHTML = '';
-                if (transactions.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma transação pendente.</td></tr>';
-                    return;
-                }
-                transactions.forEach(tx => {
-                    const row = document.createElement('tr');
-                    
-                    // Monta detalhes com botão de copiar
-                    let detailsHtml = '';
-                    if (tx.type === 'deposit') {
-                        detailsHtml = `TXID: <span id="tx-${tx._id}">${tx.txid ? tx.txid.substring(0,20)+'...' : 'N/A'}</span>
-                            <button class="copy-btn" onclick="copyText('${tx._id}', 'txid')">📋 Copiar TXID</button>`;
-                    } else {
-                        detailsHtml = `Carteira: <span id="wallet-${tx._id}">${tx.wallet ? tx.wallet : 'N/A'}</span>
-                            <button class="copy-btn" onclick="copyText('${tx._id}', 'wallet')">📋 Copiar</button>`;
-                    }
+                if (!res.ok) throw new Error('Erro ao carregar');
+                allTx = await res.json();
+                renderCards();
+            } catch (e) {
+                document.getElementById('panelMsg').textContent = e.message;
+            }
+        }
 
-                    row.innerHTML = `
-                        <td>${tx.username}</td>
-                        <td>${tx.type === 'deposit' ? 'Depósito' : 'Saque'}</td>
-                        <td>${detailsHtml}</td>
-                        <td>${tx.amountCoins} moedas ($${tx.amountUSD})</td>
-                        <td class="actions">
-                            <button onclick="approve('${tx._id}')" style="background:#4CAF50;color:white;">✅ Aprovar</button>
-                            <button onclick="reject('${tx._id}')" style="background:#e74c3c;color:white;">❌ Rejeitar</button>
-                        </td>
+        function renderCards() {
+            const depContainer = document.getElementById('depositList');
+            const witContainer = document.getElementById('withdrawList');
+            depContainer.innerHTML = '';
+            witContainer.innerHTML = '';
+            const deposits = allTx.filter(t => t.type === 'deposit');
+            const withdraws = allTx.filter(t => t.type === 'withdraw');
+            [deposits, withdraws].forEach((list, idx) => {
+                const container = idx === 0 ? depContainer : witContainer;
+                if (list.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;">Nenhuma transação.</p>';
+                    return;
+                }
+                list.forEach(tx => {
+                    const card = document.createElement('div');
+                    card.className = 'tx-card';
+                    card.innerHTML = `
+                        <div class="tx-info">
+                            <p><strong>${tx.username}</strong> – ${tx.type === 'deposit' ? 'Depósito' : 'Saque'}</p>
+                            <p>${tx.amountCoins} moedas ($${tx.amountUSD})</p>
+                        </div>
+                        <button class="detail-btn" onclick="openModal('${tx._id}')">Ver detalhes</button>
                     `;
-                    tbody.appendChild(row);
+                    container.appendChild(card);
                 });
-            } catch (err) {
-                msg.textContent = 'Erro ao carregar transações.';
-            }
+            });
         }
 
-        async function copyText(id, field) {
-            let text = '';
-            if (field === 'txid') {
-                // Pega o texto do span do TXID (precisamos do texto completo, não apenas o exibido)
-                // Como estamos mostrando apenas os primeiros 20 caracteres, vamos obter do objeto transação original
-                // Mas não temos acesso direto ao objeto aqui. Vamos pegar do span que está resumido.
-                // Melhor fazer uma requisição extra? Ou simplesmente copiar o que está visível? Vamos copiar o texto do span.
-                text = document.getElementById(`tx-${id}`).textContent;
-                // Remove os '...' se existirem
-                text = text.replace('...', '');
-            } else if (field === 'wallet') {
-                text = document.getElementById(`wallet-${id}`).textContent;
-            }
-            try {
-                await navigator.clipboard.writeText(text);
-                alert('Copiado: ' + text);
-            } catch (err) {
-                alert('Erro ao copiar. Copie manualmente: ' + text);
-            }
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab === 'deposit' ? 'depositList' : 'withdrawList').classList.remove('hidden');
+            document.getElementById(tab === 'withdraw' ? 'depositList' : 'withdrawList').classList.add('hidden');
+            document.querySelector(`.tab:nth-child(${tab === 'deposit' ? 1 : 2})`).classList.add('active');
         }
 
-        async function approve(id) {
-            const msg = document.getElementById('panelMsg');
-            try {
-                const res = await fetch(`${API_URL}/admin/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ transactionId: id, action: 'approved' })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || 'Erro ao processar');
-                msg.textContent = 'Transação aprovada!';
-                loadTransactions();
-            } catch (err) {
-                msg.textContent = err.message;
-            }
+        function openModal(id) {
+            selectedTx = allTx.find(t => t._id === id);
+            if (!selectedTx) return;
+            document.getElementById('modalTitle').textContent = selectedTx.type === 'deposit' ? 'Depósito' : 'Saque';
+            document.getElementById('modalContent').innerHTML = `
+                <p><strong>Usuário:</strong> ${selectedTx.username}</p>
+                <p><strong>Quantidade:</strong> ${selectedTx.amountCoins} moedas ($${selectedTx.amountUSD})</p>
+                ${selectedTx.txid ? `<p><strong>TXID:</strong> <span id="modalTxid">${selectedTx.txid}</span> <button onclick="copyText('modalTxid')">📋</button></p>` : ''}
+                ${selectedTx.wallet ? `<p><strong>Carteira:</strong> <span id="modalWallet">${selectedTx.wallet}</span> <button onclick="copyText('modalWallet')">📋</button></p>` : ''}
+            `;
+            document.getElementById('txModal').classList.remove('hidden');
         }
 
-        async function reject(id) {
-            const msg = document.getElementById('panelMsg');
+        function closeModal() { document.getElementById('txModal').classList.add('hidden'); selectedTx = null; }
+
+        async function processTx(action) {
+            if (!selectedTx) return;
             try {
                 const res = await fetch(`${API_URL}/admin/approve`, {
                     method: 'POST',
@@ -229,31 +348,33 @@
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token
                     },
-                    body: JSON.stringify({ transactionId: id, action: 'rejected' })
+                    body: JSON.stringify({ transactionId: selectedTx._id, action })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || 'Erro ao processar');
-                msg.textContent = 'Transação rejeitada.';
+                if (!res.ok) throw new Error(data.message);
+                document.getElementById('panelMsg').textContent = `Transação ${action === 'approved' ? 'aprovada' : 'rejeitada'}!`;
+                closeModal();
                 loadTransactions();
-            } catch (err) {
-                msg.textContent = err.message;
-            }
+            } catch (e) { alert('Erro: ' + e.message); }
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => alert('Copiado!'));
         }
 
         function logout() {
-            token = '';
             localStorage.removeItem('admin_token');
+            token = '';
             document.getElementById('adminPanel').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('loginMsg').textContent = '';
-            document.getElementById('panelMsg').textContent = '';
         }
 
-        // Auto-login se já houver token
+        // Auto-login
         (function() {
-            const savedToken = localStorage.getItem('admin_token');
-            if (savedToken) {
-                token = savedToken;
+            const saved = localStorage.getItem('admin_token');
+            if (saved) {
+                token = saved;
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
                 loadTransactions();
