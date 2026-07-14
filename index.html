@@ -24,7 +24,7 @@
             align-items: center;
             padding: 20px;
         }
-        .container { max-width: 1000px; width: 100%; }
+        .container { max-width: 1100px; width: 100%; }
         .hidden { display: none !important; }
 
         /* Login */
@@ -68,6 +68,7 @@
         }
         .login-card button:hover { opacity: 0.85; }
         .msg { color: #ff6b6b; margin-top: 10px; font-size: 13px; }
+        .msg.success { color: #51cf66; }
 
         /* Painel */
         .panel {
@@ -104,6 +105,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .tab {
             padding: 10px 20px;
@@ -119,6 +121,72 @@
             color: #1a0f08;
             border-color: var(--gold);
         }
+
+        /* Ferramentas */
+        .tools-section {
+            background: #1f140e;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .tools-section h3 {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-family: 'Press Start 2P', cursive;
+        }
+        .tool-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .tool-row input {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #2a1f14;
+            color: #eee;
+            font-size: 13px;
+            flex: 1;
+            min-width: 180px;
+        }
+        .tool-row input::placeholder { color: #887a6a; }
+        .tool-row button {
+            background: var(--gold);
+            color: #1a0f08;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tool-row button:hover { opacity: 0.85; }
+        .tool-row button.nerf-btn { background: #e74c3c; color: white; }
+        .tool-row button.buff-btn { background: #4CAF50; color: white; }
+        .tool-row label {
+            font-size: 12px;
+            color: #ccc;
+            min-width: 100px;
+        }
+        .tool-row select {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #2a1f14;
+            color: #eee;
+            font-size: 13px;
+        }
+        .tool-result {
+            font-size: 12px;
+            margin-top: 8px;
+            min-height: 18px;
+            color: #51cf66;
+        }
+        .tool-result.error { color: #ff6b6b; }
 
         /* Cards */
         .transactions-list {
@@ -221,6 +289,35 @@
                 <button class="logout-btn" onclick="logout()">Sair</button>
             </div>
 
+            <!-- Ferramentas Administrativas -->
+            <div class="tools-section">
+                <h3>🛠️ Ferramentas</h3>
+                
+                <!-- Buscar TXID -->
+                <div class="tool-row">
+                    <input type="text" id="searchTxidInput" placeholder="TXID ou ID da transação...">
+                    <button onclick="searchTxid()">🔍 Buscar</button>
+                </div>
+                <div id="searchTxidResult" class="tool-result"></div>
+
+                <hr style="border-color: var(--border); margin: 15px 0;">
+
+                <!-- Modificador de Captura -->
+                <div class="tool-row">
+                    <label>Username:</label>
+                    <input type="text" id="modifierUsername" placeholder="Nome do jogador">
+                    <label>Modificador:</label>
+                    <select id="modifierType">
+                        <option value="buff">🟢 Buff (+)</option>
+                        <option value="nerf">🔴 Nerf (-)</option>
+                    </select>
+                    <input type="number" id="modifierValue" placeholder="%" min="0" max="100" value="10">
+                    <button onclick="setCatchModifier()">✅ Aplicar</button>
+                </div>
+                <div id="modifierResult" class="tool-result"></div>
+            </div>
+
+            <!-- Abas -->
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('deposit')">Depósitos</div>
                 <div class="tab" onclick="switchTab('withdraw')">Saques</div>
@@ -337,7 +434,6 @@
         function closeModal() {
             document.getElementById('txModal').classList.add('hidden');
             selectedTx = null;
-            // Reabilita os botões caso tenham sido desabilitados
             const approveBtn = document.querySelector('.approve');
             const rejectBtn = document.querySelector('.reject');
             if (approveBtn) approveBtn.disabled = false;
@@ -348,7 +444,6 @@
             if (!selectedTx) return;
             const approveBtn = document.querySelector('.approve');
             const rejectBtn = document.querySelector('.reject');
-            // Desabilita os botões imediatamente para evitar múltiplos cliques
             if (approveBtn) approveBtn.disabled = true;
             if (rejectBtn) rejectBtn.disabled = true;
             try {
@@ -364,11 +459,11 @@
                 if (!res.ok) throw new Error(data.message);
                 document.getElementById('panelMsg').textContent = 
                     `Transação ${action === 'approved' ? 'aprovada' : 'rejeitada'}!`;
+                document.getElementById('panelMsg').className = 'msg success';
                 closeModal();
                 loadTransactions();
             } catch (e) {
                 alert('Erro: ' + e.message);
-                // Reabilita os botões em caso de erro
                 if (approveBtn) approveBtn.disabled = false;
                 if (rejectBtn) rejectBtn.disabled = false;
             }
@@ -377,6 +472,79 @@
         function copyText(elementId) {
             const text = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(text).then(() => alert('Copiado!'));
+        }
+
+        // ========== BUSCAR TXID ==========
+        async function searchTxid() {
+            const txid = document.getElementById('searchTxidInput').value.trim();
+            const resultEl = document.getElementById('searchTxidResult');
+            if (!txid) {
+                resultEl.textContent = 'Digite um TXID para buscar.';
+                resultEl.className = 'tool-result error';
+                return;
+            }
+            resultEl.textContent = 'Buscando...';
+            resultEl.className = 'tool-result';
+            try {
+                const res = await fetch(`${API_URL}/admin/search-txid?txid=${encodeURIComponent(txid)}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+                if (data.length === 0) {
+                    resultEl.textContent = 'Nenhuma transação encontrada.';
+                    resultEl.className = 'tool-result error';
+                } else {
+                    resultEl.innerHTML = data.map(tx => 
+                        `<p>👤 <strong>${tx.username}</strong> – ${tx.type} – ${tx.amountCoins} moedas – Status: ${tx.status} – TXID: ${tx.txid || 'N/A'}</p>`
+                    ).join('');
+                    resultEl.className = 'tool-result';
+                }
+            } catch (e) {
+                resultEl.textContent = 'Erro: ' + e.message;
+                resultEl.className = 'tool-result error';
+            }
+        }
+
+        // ========== MODIFICADOR DE CAPTURA ==========
+        async function setCatchModifier() {
+            const username = document.getElementById('modifierUsername').value.trim();
+            const type = document.getElementById('modifierType').value;
+            const value = parseInt(document.getElementById('modifierValue').value) || 0;
+            const resultEl = document.getElementById('modifierResult');
+
+            if (!username) {
+                resultEl.textContent = 'Digite o nome do jogador.';
+                resultEl.className = 'tool-result error';
+                return;
+            }
+            if (value < 0 || value > 100) {
+                resultEl.textContent = 'Valor deve estar entre 0 e 100.';
+                resultEl.className = 'tool-result error';
+                return;
+            }
+
+            const modifier = type === 'nerf' ? -(value / 100) : (value / 100);
+            resultEl.textContent = 'Aplicando...';
+            resultEl.className = 'tool-result';
+
+            try {
+                const res = await fetch(`${API_URL}/admin/set-catch-modifier`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ username, modifier })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+                resultEl.textContent = data.message;
+                resultEl.className = 'tool-result';
+            } catch (e) {
+                resultEl.textContent = 'Erro: ' + e.message;
+                resultEl.className = 'tool-result error';
+            }
         }
 
         function logout() {
